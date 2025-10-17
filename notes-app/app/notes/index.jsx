@@ -3,7 +3,9 @@ import {
   Text,
   StyleSheet,
   TouchableOpacity,
-  Alert
+  Alert,
+  ActivityIndicator,
+  Platform
 } from "react-native"
 import { useState, useEffect } from 'react';
 import NoteList from '../../components/NoteList'
@@ -39,17 +41,65 @@ const NoteScreen = () => {
   }, [])
 
   // add new note
-  const addNote =() => {
+  const addNote = async () => {
     if (newNote.trim() === '') {
       return
     }
-    setNotes((prevNotes) => [
-      ...prevNotes,
-      { id: Date.now.toString(), text: newNote }
-    ]);
+
+    // setNotes((prevNotes) => [
+    //   ...prevNotes,
+    //   { id: Date.now.toString(), text: newNote }
+    // ]);
+    const response = await noteService.addNote(newNote)
+
+    if (response.error) {
+      Alert.alert('Error', response.error)
+    } else {
+      setNotes([...notes, response.data])
+    }
 
     setNewNote('')
     setModalVisible(false)
+  }
+
+  // Delete Note
+  const deleteNote = async (id) =>{
+
+    // αυτό δεν είναι μέρος του tutorial. προστέθηκε γιατί ενώ το Alert δουλέυει αν χρησιμοποιήσεις την expo app στον web δεν εμφανιζόταν
+    // ✅ fallback for web
+    if (Platform.OS === "web") {
+      alert("Web Alert: Are you sure you want to delete this note? (deletes immediately)");
+      const response = await noteService.deleteNote(id);
+      if (response.error) {
+        alert("Error: " + response.error);
+      } else {
+        setNotes(notes.filter((note) => note.$id !== id));
+      }
+      return;
+    }
+
+    Alert.alert(
+      'Delete Note',
+      'Are you sure you want to delte this note',
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel'
+        },
+        {
+          text:'Delete',
+          style: "destructive",
+          onPress: async () => {
+            const response = await noteService.deleteNote(id);
+            if (response.error) {
+              Alert.alert('Error', response.error)
+            } else {
+              setNotes(notes.filter( (note) => note.$id !== id))
+            }
+          }
+        }
+      ]
+    )
   }
 
   return ( 
@@ -58,7 +108,18 @@ const NoteScreen = () => {
         style={styles.container}
       >
         {/* Note List */}
-        <NoteList notes={notes} />
+        {/* <NoteList notes={notes} /> */}
+        { loading ? (
+          <ActivityIndicator size='large' color='#007bff' />
+        ) : (
+          <>
+            { error && <Text style={styles.errorText}>{error}</Text> }
+            <NoteList
+              notes={notes}
+              onDelete={deleteNote}
+            />
+          </>
+        ) }
 
         {/* έτσι γίνετε το Btn */}
         <TouchableOpacity
@@ -118,7 +179,6 @@ const styles = StyleSheet.create({
     color: '#555',
     marginTop: 15,
   },
-
 });
  
 export default NoteScreen;
