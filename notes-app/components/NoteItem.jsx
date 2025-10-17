@@ -1,40 +1,87 @@
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native'
+import { View, Text, StyleSheet, TouchableOpacity, TextInput } from 'react-native'
+import { useState, useRef } from 'react';
 
-const NoteItem = ({ note, onDelete }) => {
+const NoteItem = ({ note, onDelete, onEdit }) => {
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedText, setEditedText] = useState(note.text);
+  const inputRef = useRef(null);
+
+  const handleSave = () => {
+    if (editedText.trim() === '') return;
+    onEdit(note.$id, editedText);
+    setIsEditing(false);
+  };
+
   return ( 
     <View style={styles.noteItem}>
+      {isEditing ? (
+        <TextInput
+          ref={inputRef}
+          style={styles.input}
+          value={editedText}
+          onChangeText={setEditedText}
+          autoFocus
+          onSubmitEditing={handleSave}
+          returnKeyType='done'
+        />
+      ) : (
       <Text style={styles.noteText}>{note.text}</Text>
-      <TouchableOpacity
-        onPress = { 
-          () => {
-            console.log("Deleting note:", note.$id);
-            onDelete(note.$id)
+      )}
+
+      <View style={styles.actions}>
+        {isEditing ? (
+          <TouchableOpacity
+            onPress={() => {
+              handleSave();
+              inputRef.current?.blur();
+            }}
+          >
+            <Text style={styles.edit}>💾</Text>
+          </TouchableOpacity>
+        ) : (
+          <TouchableOpacity onPress={() => setIsEditing(true)}>
+            <Text style={styles.edit}>✏️</Text>
+          </TouchableOpacity>
+        )}
+        <TouchableOpacity
+          onPress = { 
+            () => {
+              console.log("Deleting note:", note.$id);
+              onDelete(note.$id)
+            }
           }
-        }
-      >
-        <Text style={styles.delete}>❌</Text>
-      </TouchableOpacity>
+        >
+          <Text style={styles.delete}>❌</Text>
+        </TouchableOpacity>        
+      </View>
     </View>
    );
 }
 
 const styles = StyleSheet.create({
   noteItem: {
-    backgroundColor: '#f8f9fa',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    backgroundColor: '#f5f5f5',
     padding: 15,
-    borderRadius: 8,
-    marginBottom: 10,
-    borderWidth: 1,
-    borderColor: '#ddd',
+    borderRadius: 5,
+    marginVertical: 5,
   },
   noteText: {
-    fontSize: 16,
-    color: '#333',
+    fontSize: 18,
   },
   delete: {
     fontSize: 18,
-    color: 'red'
-  }
+    color: 'red',
+  },
+  actions: {
+    flexDirection: 'row',
+  },
+  edit: {
+    fontSize: 18,
+    marginRight: 10,
+    color: 'blue',
+  },
 })
  
 export default NoteItem;

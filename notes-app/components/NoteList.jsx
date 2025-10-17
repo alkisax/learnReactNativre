@@ -1,7 +1,7 @@
 import { View, FlatList } from 'react-native'
 import NoteItem from './NoteItem'
 
-const NoteList = ({ notes, onDelete }) => {
+const NoteList = ({ notes, onDelete, onEdit }) => {
   return ( 
     <View>
       {/* το Flatlist είναι κάτι που λειτουργεί σαν το map  */}
@@ -12,6 +12,7 @@ const NoteList = ({ notes, onDelete }) => {
           <NoteItem 
             note={item}
             onDelete={onDelete}
+            onEdit={onEdit}
           />
         )}
       />            
