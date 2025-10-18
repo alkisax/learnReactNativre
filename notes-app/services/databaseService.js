@@ -2,13 +2,14 @@ import { database } from "./appwrite";
 
 const databaseService = {
   // List Documents
-  listDocuments: async (dbId, colId) => {
+  listDocuments: async (dbId, colId, queries = []) => {
     try {
       const response = await database.listDocuments({
         databaseId: dbId,
-        collectionId: colId
+        collectionId: colId,
+        queries
       })
-      return response.documents || []
+      return {data: response.documents || [], error: null}
     } catch (error) {
       console.error('Error fetching documents:', error.message)
       return { error: error.message }

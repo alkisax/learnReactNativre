@@ -15,7 +15,7 @@ const NoteList = ({ notes, onDelete, onEdit }) => {
             onEdit={onEdit}
           />
         )}
-      />            
+      />
     </View>
    );
 }

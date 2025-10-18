@@ -37,17 +37,28 @@ const NoteScreen = () => {
 
   const fetchNotes = async () => {
     setLoading(true)
-    const response = await noteService.getNotes();
+    console.log("🟢 user before fetching notes:", user);
+    if (!user || !user.$id) {
+      console.warn("🚫 No valid user, skipping fetchNotes");
+      setLoading(false);
+      return;
+    }
+
+    const response = await noteService.getNotes(user.$id);
+    console.log("🟢 response from getNotes:", response);
 
     if (response.error) {
       setError(response.error)
       Alert.alert('Error', response.error)
     } else {
+      // const notesArray = response.data?.data || [];
+      // console.log("🧩 notesArray after unwrap:", notesArray);
       setNotes(response.data);
       setError(null)
     }
     setLoading(false)
   }
+
   useEffect(() => {
     if (user) {
       fetchNotes();      
@@ -64,7 +75,7 @@ const NoteScreen = () => {
     //   ...prevNotes,
     //   { id: Date.now.toString(), text: newNote }
     // ]);
-    const response = await noteService.addNote(newNote)
+    const response = await noteService.addNote(user.$id, newNote)
 
     if (response.error) {
       Alert.alert('Error', response.error)
