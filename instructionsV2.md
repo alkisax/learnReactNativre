@@ -24,3 +24,11 @@ localstorage
 
 vibration
 `npx expo install expo-haptics`
+
+notifications
+`npx expo install expo-notifications`
+
+build
+`npx eas build --platform android`
+ ή για apk με προσθήκη στο eas.json
+ `eas build --platform android --profile preview`
