@@ -18,3 +18,9 @@ reset project
 `npm run reset-project`
 
 πληροφορίες reactnative.dev → development → components
+
+localstorage
+`npx expo install @react-native-async-storage/async-storage`
+
+vibration
+`npx expo install expo-haptics`
